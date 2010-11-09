@@ -4,12 +4,16 @@
   (:use joiner.core)
   (:use joiner.user)
   (:use clojure.contrib.json)
+  (:use [clojure.contrib.http.agent :only [http-agent string]])
   (:use clojure.contrib.command-line))
 
 
 (defn- update-doc [id doc file]
   (let [existing (get-document (:_id (merge {:_id id} doc)))
-	updated-doc (update-document (merge existing doc))]
+	updated-doc (if (empty? doc)
+		      ;;If document is empty - don't bother updating it
+		      existing
+		      (update-document (merge existing doc)))]
     (if (nil? file)
       updated-doc
       (update-attachment updated-doc file))))
