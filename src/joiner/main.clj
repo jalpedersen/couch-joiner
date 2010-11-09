@@ -6,31 +6,36 @@
   (:use clojure.contrib.json)
   (:use clojure.contrib.command-line))
 
-(defn- save-doc [database doc]
-  (let [db (get-secure-database database)
-	existing
-	(with-db db
-	  (get-document (:_id doc)))]
-    (with-db db
-      (update-document (merge existing doc)))))
 
-(defn- attach-file [database doc file]
-  (with-db (get-secure-database database)
-    (update-attachment doc file)))
+(defn- update-doc [id doc file]
+  (let [existing (get-document (:_id (merge {:_id id} doc)))
+	updated-doc (update-document (merge existing doc))]
+    (if (nil? file)
+      updated-doc
+      (update-attachment updated-doc file))))
 
 (defn -main [& args]
   (with-command-line args
     "Joiner - bending CouchDB"
-    [[db "Database"]
-     [doc "Document to save"]
+    [[db "Database" nil]
+     [op "Operation: get, save, update or delete" nil] 
+     [id "Document id"]
+     [doc "Document" "{}"]
      [file "File to attach"]
      remaining]
-    (if (nil? db)
-      (println "Specify database")
-      (if (nil? doc)
-	(println "Specify document")
-	(let [new-doc (save-doc db (read-json doc))]
-	  (if (nil? file)
-	    (println new-doc)
-	    (println (attach-file db new-doc file))))))))
+    (let [missing-options (filter #(nil? (:op %))
+				  [{:op db :name "db"} {:op op :name "op"}])]
+      (if (empty? missing-options)
+	(with-db (get-secure-database db)
+	  (let [json-doc (read-json doc)]
+	    (println
+	     (case (keyword op)
+		   :get (get-document id)
+		   :save (create-document json-doc)
+		   :update (update-doc id json-doc file)
+		   :delete (delete-document json-doc)
+		   (str "Unknown operation " op)))))
+	(println (str "Missing options: " (seq (map #(:name %) missing-options))))))))
+	      
+	    
   
