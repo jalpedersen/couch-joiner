@@ -1,5 +1,6 @@
 (ns joiner.core
   (:use com.ashafa.clutch)
+  (:use com.ashafa.clutch.http-client)
   (:use joiner.properties))
 
 (defn- get-properties []
@@ -16,3 +17,27 @@
       :language "javascript")))
 
 
+;;Get security settings for database
+(defn get-security [db-name]
+  (couchdb-request (get-secure-database db-name)
+		   :get
+		   :command "_security"))
+
+;;Set security settings for database
+;;Example settings:
+;;{
+;;  "admins": {
+;;    "roles": ["local-heroes"],
+;;    "names": ["rebecca", "pete"]
+;;  },
+;;  "readers": {
+;;    "roles": ["lolcat-heroes"],
+;;    "names": ["simon", "ben", "james"]
+;;  }
+;;}
+(defn set-security [db-name security-settings]
+  (couchdb-request (get-secure-database db-name)
+		   :put
+		   :command "_security"
+		   :data security-settings))
+  
