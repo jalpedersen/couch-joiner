@@ -5,7 +5,7 @@
 (defn load-properties [name]
   (let [file (java.io.File. name)
 	do-load (fn [open-fn]
-		  (with-open [ stream (open-fn)]
+		  (with-open [stream (open-fn)]
 		    (doto (java.util.Properties.)
 		      (.load stream))))]
     (if (.isFile file)
@@ -13,4 +13,16 @@
       (let [url (resource name)]
 	(if (nil? url)
 	  (java.util.Properties.)
+	  (do-load (fn [] (.openStream url))))))))
+
+(defn load-resource [name]
+  (let [file (java.io.File. name)
+	do-load (fn [open-fn]
+		  (with-open [stream (open-fn)]
+		    (slurp stream)))]
+    (if (.isFile file)
+      (do-load (fn [] (java.io.FileInputStream. file)))
+      (let [url (resource name)]
+	(if (nil? url)
+	  nil
 	  (do-load (fn [] (.openStream url))))))))
