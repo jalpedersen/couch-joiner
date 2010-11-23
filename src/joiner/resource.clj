@@ -1,4 +1,4 @@
-(ns joiner.properties
+(ns joiner.resource
   (:use clojure.java.io))
 
 ;;Try loading property first from file then from resource
