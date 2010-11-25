@@ -3,13 +3,13 @@
   (:use joiner.core)
   (:use joiner.resource))
 
-(defn- load-view [path]
+(defn- load-files [path files]
   (let [loader-fn (fn[sum value]
 		    (let [file-content (load-resource (str path value ".js"))]
 		      (if (nil? file-content)
 			    sum
 			    (assoc sum (keyword value) file-content))))]
-    (reduce loader-fn {} ["map" "reduce"])))
+    (reduce loader-fn {} files)))
 
 (defn- remove-view [database design-doc view-name]
   (with-db database
@@ -20,7 +20,8 @@
 (defn update-view [database design-doc view-name]
   "Create or update a new view based on the resources found at
    design-doc/view-name/[map.js reduce.js]"
-  (let [mapreduce (load-view (str design-doc "/views/" view-name "/"))]
+  (let [mapreduce (load-files (str design-doc "/views/" view-name "/")
+			      ["map" "reduce"])]
     (if (empty? mapreduce)
       (remove-view database design-doc view-name)
       (with-db database database
