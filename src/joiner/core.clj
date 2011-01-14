@@ -7,8 +7,9 @@
   (let [filename (System/getProperty "joiner-conf" "joiner.properties")]
     (load-properties filename)))
 
-;;Authenticated access to database
+
 (defn get-secure-database [name]
+  "Authenticated access to database"
   (let [prop-set (.entrySet (get-properties))
 	prop-keys (map (fn [e] (keyword (key e))) prop-set)
 	prop-values (map (fn [e] (.getValue e)) prop-set)]
@@ -17,13 +18,12 @@
       :language "javascript")))
 
 
-;;Get security settings for database
 (defn get-security [db-name]
+  "Get security settings for database"
   (couchdb-request (get-secure-database db-name)
 		   :get
 		   :command "_security"))
 
-;;Set security settings for database
 ;;Example settings:
 ;;{
 ;;  "admins": {
@@ -36,6 +36,7 @@
 ;;  }
 ;;}
 (defn set-security [db-name security-settings]
+  "Set security settings for database"
   (couchdb-request (get-secure-database db-name)
 		   :put
 		   :command "_security"

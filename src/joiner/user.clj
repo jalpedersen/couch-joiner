@@ -24,8 +24,9 @@
 	digester (java.security.MessageDigest/getInstance "SHA1")] 
     (apply str (map to-hex (.digest digester bytes)))))
 
-;;Create a new user with given roles
+
 (defn create-user [username, password, roles]
+  "Create a new user with given password and roles."
   (let [salt (get-uuid)]
     (with-db (get-secure-database *users-db*)
       (create-document
@@ -38,13 +39,14 @@
        }))
     ))
 
-;;Get user from username
 (defn get-user [username]
+  "Get user from username"
   (with-db (get-secure-database *users-db*)
     (get-document (str "org.couchdb.user:" username))))
 
-;;Set new password for user
+
 (defn set-password [username, password]
+  "Set new password for user"
   (let [salt (get-uuid)
 	user (get-user username)]
     (with-db (get-secure-database *users-db*)
@@ -52,23 +54,24 @@
 			 :salt salt
 			 :password_sha (sha1 password salt))))))
 
-;;Update user along. Typically used when updating roles
-;;and other meta-data
 (defn update-user [user]
+  "Update user along. Typically used when updating roles
+and other meta-data"
   (with-db (get-secure-database *users-db*)
      (update-document user)))
 
-;;Set roles for user
+
 (defn set-roles [username, roles]
+  "Set roles for user"
   (let [user (get-user username)]
     (update-user (assoc user :roles roles))))
 
 (defn- clean-name [name]
   (replace-re #"[^a-z0-9\\+]" "\\_" (lower-case name)))
 
-;;Create new database for user and store the name
-;;of the new database in the users meta-data
 (defn create-private-database [user & [postfix]]
+  "Create new database for user and store the name
+of the new database in the users meta-data"
   ;;Database name may only contain:
   ;;lower case letters, numbers,  _, $, (, ), +, -, and /
   (let [clean-name (clean-name (:name user))

@@ -1,8 +1,8 @@
 (ns joiner.resource
   (:use clojure.java.io))
 
-;;Try loading property first from file then from resource
 (defn load-properties [name]
+  "Load named property first from file then from resource"
   (let [file (java.io.File. name)
 	do-load (fn [open-fn]
 		  (with-open [stream (open-fn)]
@@ -16,6 +16,8 @@
 	  (do-load (fn [] (.openStream url))))))))
 
 (defn load-resource [name]
+  "Load file first from file relative from current
+directory, then from a resource."
   (let [file (java.io.File. name)
 	do-load (fn [open-fn]
 		  (with-open [stream (open-fn)]
