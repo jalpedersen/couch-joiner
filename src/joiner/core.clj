@@ -13,9 +13,9 @@
   (let [prop-set (.entrySet (get-properties))
 	prop-keys (map (fn [e] (keyword (key e))) prop-set)
 	prop-values (map (fn [e] (.getValue e)) prop-set)]
-    (assoc (zipmap prop-keys prop-values)
-      :name name
-      :language "javascript")))
+    (get-database (assoc (zipmap prop-keys prop-values)
+		    :name name
+		    :language "javascript"))))
 
 
 (defn get-security [db-name]
