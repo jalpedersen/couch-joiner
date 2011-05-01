@@ -1,11 +1,11 @@
 (ns joiner.main
   (:gen-class)
-  (:use com.ashafa.clutch)
-  (:use joiner.core)
-  (:use joiner.user)
-  (:use clojure.contrib.json)
-  (:use [clojure.contrib.http.agent :only [http-agent string]])
-  (:use clojure.contrib.command-line))
+  (:use [com.ashafa.clutch]
+        [joiner.core]
+        [joiner.user]
+        [clojure.contrib.json]
+        [clojure.contrib.http.agent :only (http-agent string)]
+        [clojure.contrib.command-line]))
 
 
 (defn- update-doc [id doc file]

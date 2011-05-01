@@ -1,9 +1,8 @@
 (ns joiner.user
-  (:use joiner.core)
-  (:use com.ashafa.clutch)
-  (:use com.ashafa.clutch.http-client)
-  (:use [clojure.contrib.string
-	 :only (lower-case replace-re)]))
+  (:use [joiner.core]
+        [com.ashafa.clutch]
+        [com.ashafa.clutch.http-client]
+        [clojure.contrib.string :only (lower-case replace-re)]))
 
 (def *users-db* "_users")
 

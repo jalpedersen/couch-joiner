@@ -1,7 +1,7 @@
 (ns joiner.core
-  (:use com.ashafa.clutch)
-  (:use com.ashafa.clutch.http-client)
-  (:use joiner.resource))
+  (:use [com.ashafa.clutch]
+        [com.ashafa.clutch.http-client]
+        [joiner.resource]))
 
 (defn- get-properties []
   (let [filename (System/getProperty "joiner-conf" "joiner.properties")]

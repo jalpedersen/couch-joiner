@@ -1,7 +1,7 @@
 (ns joiner.design
-  (:use com.ashafa.clutch)
-  (:use joiner.core)
-  (:use joiner.resource))
+  (:use [com.ashafa.clutch]
+        [joiner.core]
+        [joiner.resource]))
 
 (defn- load-files [path files]
   (let [loader-fn (fn[sum value]
