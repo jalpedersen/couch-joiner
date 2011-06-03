@@ -3,24 +3,46 @@
         [com.ashafa.clutch.http-client]
         [joiner.resource]))
 
-(defn- get-properties []
-  (let [filename (System/getProperty "joiner-conf" "joiner.properties")]
-    (load-properties filename)))
+(defn- load-auth-properties []
+  (let [filename (System/getProperty "joiner-conf" "joiner.properties")
+        properties (load-properties filename)]
+    (loop [props {} prop-set (.entrySet properties)]
+      (if (seq prop-set)
+        (let [entry (first prop-set)
+              key (keyword (.getKey entry))
+              value (.getValue entry)]
+          (recur (assoc props key value) (next prop-set)))
+        props))))
+
+;;Initialise properties
+(def *autentication-props* (atom nil))
+
+(defn reload-properties []
+  (reset! *autentication-props* (load-auth-properties)))
+
+(defn- get-properties[]
+  (if (nil? @*autentication-props*)
+    (do
+      (reset! *autentication-props* (load-auth-properties))
+      @*autentication-props*)
+    @*autentication-props*))
 
 
-(defn get-secure-database [name]
+(defn authenticated-database [name]
   "Authenticated access to database"
-  (let [prop-set (.entrySet (get-properties))
-	prop-keys (map (fn [e] (keyword (key e))) prop-set)
-	prop-values (map (fn [e] (.getValue e)) prop-set)]
-    (get-database (assoc (zipmap prop-keys prop-values)
-		    :name name
-		    :language "javascript"))))
+  (get-database (assoc (get-properties)
+	         :name name
+	         :language "javascript")))
 
+(defn db-auth [name]
+  (assoc (get-properties)
+         :name name
+         :language "javascript"))
+ 
 
 (defn get-security [db-name]
   "Get security settings for database"
-  (couchdb-request (get-secure-database db-name)
+  (couchdb-request (authenticated-database db-name)
 		   :get
 		   :command "_security"))
 
@@ -37,7 +59,7 @@
 ;;}
 (defn set-security [db-name security-settings]
   "Set security settings for database"
-  (couchdb-request (get-secure-database db-name)
+  (couchdb-request (authenticated-database db-name)
 		   :put
 		   :command "_security"
 		   :data security-settings))

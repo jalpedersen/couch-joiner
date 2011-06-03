@@ -11,7 +11,7 @@
 
 (defmacro with-test-db
   [body]
-  `(let [db# (get-database (get-secure-database *testdb*))]
+  `(let [db# (get-database (authenticated-database *testdb*))]
      (try 
        (~@body)
        (finally (delete-database db#)))))

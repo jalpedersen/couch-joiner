@@ -30,7 +30,7 @@
     (let [missing-options (filter #(nil? (:op %))
 				  [{:op db :name "db"} {:op op :name "op"}])]
       (if (empty? missing-options)
-	(with-db (get-secure-database db)
+	(with-db (authenticated-database db)
 	  (let [json-doc (read-json doc)]
 	    (println
 	     (case (keyword op)
