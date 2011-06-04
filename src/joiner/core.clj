@@ -57,9 +57,8 @@
 ;;    "names": ["simon", "ben", "james"]
 ;;  }
 ;;}
-(defn set-security [db-name security-settings]
+(defn- set-security [db-name security-settings]
   "Set security settings for database"
-  (println security-settings)
   (couchdb-request (authenticated-database db-name)
 		   :put
 		   :command "_security"
