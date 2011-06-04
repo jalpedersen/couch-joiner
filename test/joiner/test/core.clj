@@ -21,5 +21,5 @@
 	     :readers {:names ["joe"]}}]
     (with-test-db
       (do
-	(is (:ok (set-security *testdb* acl)))
-	(is (= acl (get-security *testdb*)))))))
+	(is (:ok (security *testdb* acl)))
+	(is (= acl (security *testdb*)))))))

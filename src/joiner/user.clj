@@ -81,7 +81,7 @@ of the new database in the users meta-data"
 	name {:names [(:name user)]}
 	acl {:admins name :readers name}]
     (try (create-database (db-auth db-name))
-	 (try (do (set-security db-name acl)
+	 (try (do (security db-name acl)
 		  (update-user (assoc user :userdb db-name)))
 	      ;;Should we remove the database
 	      ;;if we cannot update the user data?
