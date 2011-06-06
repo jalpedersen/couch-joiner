@@ -1,5 +1,6 @@
-(defproject joiner "0.8"
+(defproject org.signaut/joiner "0.8"
   :description "Manage couchdb users and databases"
+  :url "http://github.com/jalpedersen/joiner"
   :dependencies [[org.clojure/clojure "1.2.1"]
                  [org.clojure/clojure-contrib "1.2.0"]
 		 [com.ashafa/clutch "0.2.4"]]
