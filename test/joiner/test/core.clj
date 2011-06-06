@@ -21,5 +21,13 @@
 	     :readers {:names ["joe"]}}]
     (with-test-db
       (do
-	(is (:ok (security *testdb* acl)))
-	(is (= acl (security *testdb*)))))))
+        (with-db (authenticated-database *testdb*)
+	  (is (:ok (security acl)))
+	  (is (= acl (security))))))))
+
+(deftest test-design
+  (with-test-db
+    (with-db (authenticated-database *testdb*)
+      (do
+        (update-view "testing" "test-view")
+        (update-view "testing" "test-view" "another-view")))))

@@ -40,9 +40,9 @@
          :language "javascript"))
  
 
-(defn- get-security [db-name]
+(defn- get-security []
   "Get security settings for database"
-  (couchdb-request (authenticated-database db-name)
+  (couchdb-request config
 		   :get
 		   :command "_security"))
 
@@ -57,15 +57,15 @@
 ;;    "names": ["simon", "ben", "james"]
 ;;  }
 ;;}
-(defn- set-security [db-name security-settings]
+(defn- set-security [security-settings]
   "Set security settings for database"
-  (couchdb-request (authenticated-database db-name)
+  (couchdb-request config
 		   :put
 		   :command "_security"
 		   :data security-settings))
   
-(defn security [db-name & settings] 
+(defn security [& settings] 
   (if (nil? settings)
-    (get-security db-name)
-    (set-security db-name (first (merge settings)))))
+    (get-security)
+    (set-security (first (merge settings)))))
 

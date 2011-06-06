@@ -4,31 +4,36 @@
         [joiner.resource])
   (:require [clojure.contrib.logging :as log]))
 
-(defn- load-files [path files]
-  (let [loader-fn (fn[sum value]
-		    (let [file-content (load-resource (str path value ".js"))]
+(defn- load-files [path key-names]
+  (let [loader-fn (fn[sum key-name]
+		    (let [file-content (load-resource (str path key-name ".js"))]
 		      (if (nil? file-content)
 			    sum
-			    (assoc sum (keyword value) file-content))))]
-    (reduce loader-fn {} files)))
+			    (assoc sum (keyword key-name) file-content))))]
+    (reduce loader-fn {} key-names)))
 
-(defn- remove-view [database design-doc view-name]
-  (with-db database
-    (let [doc (get-document (str "_design/" design-doc))
-	  views (:views doc)]
-      (update-document (assoc doc :views (dissoc views (keyword view-name)))))))
+(defn- reload-design-doc-element [design-doc element key-names & directories]
+  "Update the design document element with the content from the 
+  files found under given directories."
+  (let [ddoc (get-document (str "_design/" design-doc))
+        new-element (reduce (fn [new-element dir]
+                              (let [content (load-files (str design-doc "/" element "/" dir) key-names)]
+                                (if (empty? content)
+                                  (dissoc new-element (keyword dir))
+                                  (assoc new-element (keyword dir) content))))
+                            ((keyword element) ddoc) directories)]
+    (if (nil? ddoc)
+      (create-document {:_id (str "_design/" design-doc) (keyword element) new-element})
+      (update-document (assoc ddoc (keyword element) new-element)))))
 
-(defn update-view [database design-doc & view-names]
+
+(defn update-fulltext [design-doc & indices]
+  (reload-design-doc-element design-doc "fulltext" ["index"] indices))
+
+
+(defn update-view [design-doc & view-names]
   "Create or update a new view based on the resources found at
    design-doc/view-name/[map.js reduce.js]"
-  (loop [views view-names]
-    (when (seq views)
-      (let [view-name (first views)
-            mapreduce (load-files (str design-doc "/views/" view-name "/")
-                                   ["map" "reduce"])]
-        (if (empty? mapreduce)
-          (remove-view database design-doc view-name)
-          ;;Should really update design document in one go
-          (with-db database database
-	    (save-view design-doc (keyword view-name) mapreduce))))
-      (recur (next views)))))
+  (reload-design-doc-element design-doc "views" ["map" "reduce"] view-names))
+
+
