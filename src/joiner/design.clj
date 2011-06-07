@@ -6,10 +6,10 @@
 
 (defn- load-files [path key-names]
   (let [loader-fn (fn[sum key-name]
-		    (let [file-content (load-resource (str path key-name ".js"))]
-		      (if (nil? file-content)
-			    sum
-			    (assoc sum (keyword key-name) file-content))))]
+                    (let [file-content (load-resource (str path key-name ".js"))]
+                      (if (nil? file-content)
+                        sum
+                        (assoc sum (keyword key-name) file-content))))]
     (reduce loader-fn {} key-names)))
 
 (defn- reload-design-doc-element [design-doc element key-names & directories]
@@ -33,7 +33,7 @@
 
 (defn update-view [design-doc & view-names]
   "Create or update a new view based on the resources found at
-   design-doc/view-name/[map.js reduce.js]"
+  design-doc/view-name/[map.js reduce.js]"
   (reload-design-doc-element design-doc "views" ["map" "reduce"] view-names))
 
 

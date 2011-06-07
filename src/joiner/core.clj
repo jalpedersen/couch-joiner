@@ -31,20 +31,20 @@
 (defn authenticated-database [name]
   "Authenticated access to database"
   (get-database (assoc (get-properties)
-	         :name name
-	         :language "javascript")))
+                       :name name
+                       :language "javascript")))
 
 (defn db-auth [name]
   (assoc (get-properties)
          :name name
          :language "javascript"))
- 
+
 
 (defn- get-security []
   "Get security settings for database"
   (couchdb-request config
-		   :get
-		   :command "_security"))
+                   :get
+                   :command "_security"))
 
 ;;Example settings:
 ;;{
@@ -60,10 +60,10 @@
 (defn- set-security [security-settings]
   "Set security settings for database"
   (couchdb-request config
-		   :put
-		   :command "_security"
-		   :data security-settings))
-  
+                   :put
+                   :command "_security"
+                   :data security-settings))
+
 (defn security [& settings] 
   (if (nil? settings)
     (get-security)
