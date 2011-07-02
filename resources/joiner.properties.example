@@ -1,3 +1,4 @@
+#Sample CouchDB properties for joiner
 username=knownUser
 password=myPassword
 host=localhost
