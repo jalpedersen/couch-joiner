@@ -12,8 +12,9 @@
                              :get))))
 
 (defn- to-hex [byte]
-  (let [val  (Integer/toString (bit-and byte 0xff) 16)]
-    (if (= (.length val) 1)
+  (let [clean-byte (bit-and byte 0xff)
+        val  (Integer/toString clean-byte 16)]
+    (if (< clean-byte 0x10)
       (str "0" val)
       val)))
 
