@@ -64,8 +64,9 @@
                    :command "_security"
                    :data security-settings))
 
-(defn security [& settings] 
-  (if (nil? settings)
-    (get-security)
-    (set-security (first (merge settings)))))
+(defn security
+  ([]
+    (get-security))
+  ([settings]
+    (set-security settings)))
 
