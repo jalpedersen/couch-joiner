@@ -94,5 +94,8 @@
                                    0
                                    (+ postfix 1)))))))
 
-(defn create-admin [username])
+(defn create-admin [username password]
+  (couchdb-request (authenticated-database (str "_config/admins/" username))
+                   :put
+                   :data (str "\"" password "\"")))
 
