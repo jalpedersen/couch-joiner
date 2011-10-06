@@ -12,12 +12,12 @@
                         (assoc sum (keyword key-name) file-content))))]
     (reduce loader-fn {} key-names)))
 
-(defn- reload-design-doc-element [design-doc element key-names & directories]
+(defn- reload-design-doc-element [design-doc element key-names directories]
   "Update the design document element with the content from the 
   files found under given directories."
   (let [ddoc (get-document (str "_design/" design-doc))
         new-element (reduce (fn [new-element dir]
-                              (let [content (load-files (str design-doc "/" element "/" dir) key-names)]
+                              (let [content (load-files (str design-doc "/" element "/" dir "/") key-names)]
                                 (if (empty? content)
                                   (dissoc new-element (keyword dir))
                                   (assoc new-element (keyword dir) content))))
