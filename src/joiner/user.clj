@@ -44,6 +44,10 @@
   (with-db (authenticated-database *users-db*)
            (get-document (str "org.couchdb.user:" username))))
 
+(defn authenticate [username, password]
+  (let [user (get-user username)]
+    (if user
+      (= (:password_sha user) (sha1 password (:salt user))))))
 
 (defn set-password [username, password]
   "Set new password for user"
