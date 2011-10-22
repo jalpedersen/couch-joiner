@@ -15,7 +15,7 @@
         props))))
 
 ;;Initialise properties
-(def *autentication-props* (atom nil))
+(def ^:dynamic *autentication-props* (atom nil))
 
 (defn reload-properties []
   (reset! *autentication-props* (load-auth-properties)))

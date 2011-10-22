@@ -1,6 +1,6 @@
 (ns joiner.util
   (:use [clojure.string :only [split]]
-        [clojure.contrib.json :only [json-str]]))
+        [clojure.data.json :only [json-str]]))
 
 (defmacro catch-couchdb-exceptions [& body]
   `(try

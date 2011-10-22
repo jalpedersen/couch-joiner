@@ -2,7 +2,7 @@
   (:use [com.ashafa.clutch]
         [joiner.core]
         [joiner.resource])
-  (:require [clojure.contrib.logging :as log]))
+  (:require [clojure.tools.logging :as log]))
 
 (defn- load-files [path key-names]
   (let [loader-fn (fn[sum key-name]

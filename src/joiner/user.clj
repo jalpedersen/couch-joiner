@@ -1,10 +1,10 @@
 (ns joiner.user
+  (:require [clojure.string :as s])
   (:use [joiner.core]
         [com.ashafa.clutch]
-        [com.ashafa.clutch.http-client]
-        [clojure.contrib.string :only (lower-case replace-re)]))
+        [com.ashafa.clutch.http-client]))
 
-(def *users-db* "_users")
+(def ^:dynamic *users-db* "_users")
 
 (defn- get-uuid []
   (first
@@ -71,7 +71,7 @@
     (update-user (assoc user :roles roles))))
 
 (defn- clean-name [name]
-  (replace-re #"[^a-z0-9\\+]" "\\_" (lower-case name)))
+  (s/replace (s/lower-case name) #"[^a-z0-9\\+]" "\\_" ))
 
 (defn create-private-database [user & [postfix]]
   "Create new database for user and store the name
