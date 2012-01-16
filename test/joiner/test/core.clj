@@ -1,9 +1,11 @@
 (ns joiner.test.core
   (:use joiner.core
+        joiner.admin
         joiner.design
         joiner.user
         joiner.resource
-        joiner.util
+        joiner.utils
+        joiner.search
         com.ashafa.clutch
         com.ashafa.clutch.http-client
         joiner.main :reload-all)
@@ -30,8 +32,7 @@
          (with-test-db
            (let [response (catch-couchdb-exceptions
                                  (with-db (authenticated-database "_bad-name")
-                                          (couchdb-request (authenticated-database testdb)
-                                                           :get)))]
+                                          (couchdb-request :get (authenticated-database testdb))))]
              (is (= 400 (:status response)))
              (is (.equals "Bad Request" (:error response))))))
 
@@ -39,5 +40,5 @@
          (with-test-db
            (with-db (authenticated-database testdb)
                     (do
-                      (update-view "testing" "test-view")
-                      (update-view "testing" "test-view" "another-view")))))
+                      (update-views "testing" "test-view")
+                      (update-views "testing" "test-view" "another-view")))))

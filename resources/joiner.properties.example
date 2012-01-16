@@ -1,5 +1,4 @@
-#Sample CouchDB properties for joiner
+#Sample CouchDB properties for couch-joiner
 username=knownUser
 password=myPassword
-host=localhost
-port=5984
+url=http://localhost:5984

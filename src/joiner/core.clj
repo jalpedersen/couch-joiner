@@ -1,6 +1,6 @@
 (ns joiner.core
+  (:require [com.ashafa.clutch.utils :as utils])
   (:use [com.ashafa.clutch]
-        [com.ashafa.clutch.http-client]
         [joiner.resource]))
 
 (defn- load-auth-properties []
@@ -15,58 +15,28 @@
         props))))
 
 ;;Initialise properties
-(def ^:dynamic *autentication-props* (atom nil))
+(def ^{:dynamic true :private true} *autentication-props* (atom nil))
+(def ^{:private true} valid-properties [:username :password :fti-key :fti-prefix])
 
 (defn reload-properties []
-  (reset! *autentication-props* (load-auth-properties)))
+  (reset! *autentication-props* nil))
 
-(defn- get-properties[]
+(defn- db-properties []
   (if (nil? @*autentication-props*)
-    (do
-      (reset! *autentication-props* (load-auth-properties))
-      @*autentication-props*)
+    (let [properties (load-auth-properties)
+          connection (merge (utils/url (:url properties))
+                            (select-keys properties valid-properties))]
+      (do
+        (reset! *autentication-props* connection)
+        @*autentication-props*))
     @*autentication-props*))
 
+(defn database-url [name]
+  (assoc (db-properties)
+         :path name))
 
 (defn authenticated-database [name]
   "Authenticated access to database"
-  (get-database (assoc (get-properties)
-                       :name name
-                       :language "javascript")))
+  (get-database (database-url name)))
 
-(defn db-auth [name]
-  (assoc (get-properties)
-         :name name
-         :language "javascript"))
-
-
-(defn- get-security []
-  "Get security settings for database"
-  (couchdb-request config
-                   :get
-                   :command "_security"))
-
-;;Example settings:
-;;{
-;;  "admins": {
-;;    "roles": ["local-heroes"],
-;;    "names": ["rebecca", "pete"]
-;;  },
-;;  "readers": {
-;;    "roles": ["lolcat-heroes"],
-;;    "names": ["simon", "ben", "james"]
-;;  }
-;;}
-(defn- set-security [security-settings]
-  "Set security settings for database"
-  (couchdb-request config
-                   :put
-                   :command "_security"
-                   :data security-settings))
-
-(defn security
-  ([]
-    (get-security))
-  ([settings]
-    (set-security settings)))
 

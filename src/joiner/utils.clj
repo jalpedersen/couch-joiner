@@ -1,5 +1,7 @@
-(ns joiner.util
-  (:use [clojure.string :only [split]]
+(ns joiner.utils
+  (:require [com.ashafa.clutch.http-client :as http])
+  (:use [joiner.core] 
+        [clojure.string :only [split]]
         [clojure.data.json :only [json-str]]))
 
 (defmacro catch-couchdb-exceptions [& body]
@@ -14,3 +16,11 @@
             :error (get tokens# 4)
             :message msg#}
            (throw e#))))))
+
+
+(defn uuids 
+  ([]
+   (uuids 1))
+  ([count]
+   (:uuids (http/couchdb-request :get
+                                 (database-url (str "_uuids?count=" count))))))

@@ -1,6 +1,7 @@
 (ns joiner.user
   (:require [clojure.string :as s])
   (:use [joiner.core]
+        [joiner.admin]
         [com.ashafa.clutch]
         [com.ashafa.clutch.http-client]))
 
@@ -8,8 +9,8 @@
 
 (defn- get-uuid []
   (first
-    (:uuids (couchdb-request (authenticated-database "_uuids")
-                             :get))))
+    (:uuids (couchdb-request :get
+                             (database-url "_uuids")))))
 
 (defn- to-hex [byte]
   (let [clean-byte (bit-and byte 0xff)
@@ -29,15 +30,13 @@
   "Create a new user with given password and roles."
   (let [salt (get-uuid)]
     (with-db (authenticated-database *users-db*)
-             (create-document
+             (put-document
                {:_id (str "org.couchdb.user:" username)
                 :name username
                 :password_sha (sha1 password salt)
                 :salt salt
                 :type "user"
-                :roles roles
-                }))
-    ))
+                :roles roles}))))
 
 (defn get-user [username]
   "Get user from username"
@@ -85,21 +84,16 @@
                        (str clean-name "_" postfix)))
         name {:names [(:name user)]}
         acl {:admins name :readers name}]
-    (try (create-database (db-auth db-name))
+    (try (create-database (database-url db-name))
       (try (do (with-db (authenticated-database db-name) (security  acl))
              (update-user (assoc user :userdb db-name)))
         ;;Should we remove the database
         ;;if we cannot update the user data?
         (catch Exception _ 
-          (delete-database (db-auth db-name))))
+          (delete-database (database-url db-name))))
       (catch java.io.IOException _
         (create-private-database user
                                  (if (nil? postfix)
                                    0
                                    (+ postfix 1)))))))
-
-(defn create-admin [username password]
-  (couchdb-request (authenticated-database (str "_config/admins/" username))
-                   :put
-                   :data (str "\"" password "\"")))
 

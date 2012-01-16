@@ -15,7 +15,7 @@
                       (update-document (merge existing doc)))]
     (if (nil? file)
       updated-doc
-      (update-attachment updated-doc file))))
+      (put-attachment updated-doc file))))
 
 (defn -main [& args]
   (let [arguments (cli args
@@ -32,7 +32,7 @@
                (println
                  (case (keyword op)
                    :get (get-document id)
-                   :save (create-document json-doc)
+                   :save (put-document json-doc)
                    :update (update-doc id json-doc (:file arguments))
                    :delete (delete-document json-doc)
                    (str "Unknown operation " op)))))))
