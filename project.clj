@@ -1,4 +1,4 @@
-(defproject org.signaut/couch-joiner "1.0.0"
+(defproject org.signaut/couch-joiner "1.0.1"
   :description "Manage couchdb users and databases"
   :url "http://github.com/jalpedersen/couch-joiner"
   :dependencies [[org.clojure/clojure "1.3.0"]

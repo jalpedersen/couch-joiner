@@ -63,6 +63,15 @@
   (with-db (authenticated-database *users-db*)
            (update-document user)))
 
+(defn delete-user [user]
+  (with-db (authenticated-database *users-db*)
+           (delete-document user)))
+
+(defn delete-private-database [user]
+  (if-let [db (:userdb user)]
+    (do
+      (delete-database (authenticated-database db))
+      (update-user (dissoc user :userdb)))))
 
 (defn set-roles [username, roles]
   "Set roles for user"
