@@ -1,11 +1,11 @@
 (ns joiner.core
   (:require [com.ashafa.clutch.utils :as utils])
-  (:use [com.ashafa.clutch]
-        [joiner.resource]))
+  (:use [joiner.resource]
+        [com.ashafa.clutch :only (get-database)]))
 
 (defn- load-auth-properties []
   (let [filename (System/getProperty "joiner-conf" "joiner.properties")
-        properties (load-properties filename)]
+        ^java.util.Properties properties (load-properties filename)]
     (loop [props {} prop-set (.entrySet properties)]
       (if (seq prop-set)
         (let [entry (first prop-set)
@@ -32,8 +32,7 @@
     @*autentication-props*))
 
 (defn database-url [name]
-  (assoc (db-properties)
-         :path name))
+  (utils/url (db-properties) name))
 
 (defn authenticated-database [name]
   "Authenticated access to database"

@@ -1,16 +1,23 @@
 (ns joiner.user
-  (:require [clojure.string :as s])
+  (:require [clojure.string :as s]
+            [com.ashafa.clutch.http-client :as http])
   (:use [joiner.core]
         [joiner.admin]
-        [com.ashafa.clutch]
-        [com.ashafa.clutch.http-client]))
+        [com.ashafa.clutch :only (get-document
+                                   with-db
+                                   get-database
+                                   create-database
+                                   delete-database
+                                   delete-document
+                                   update-document
+                                   put-document)]))
 
 (def ^:dynamic *users-db* "_users")
 
 (defn- get-uuid []
   (first
-    (:uuids (couchdb-request :get
-                             (database-url "_uuids")))))
+    (:uuids (http/couchdb-request :get
+                                  (database-url "_uuids")))))
 
 (defn- to-hex [byte]
   (let [clean-byte (bit-and byte 0xff)

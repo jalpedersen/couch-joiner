@@ -1,8 +1,11 @@
 (ns joiner.main
   (:gen-class)
-  (:use [com.ashafa.clutch]
-        [joiner.core]
+  (:use [joiner.core]
         [joiner.user]
+        [com.ashafa.clutch :only (update-document get-database
+                                   put-document get-document
+                                   put-attachment with-db
+                                   delete-document)]
         [clojure.data.json]
         [clojure.tools.cli]))
 
@@ -36,6 +39,4 @@
                    :update (update-doc id json-doc (:file arguments))
                    :delete (delete-document json-doc)
                    (str "Unknown operation " op)))))))
-
-
 

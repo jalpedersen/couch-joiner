@@ -1,7 +1,7 @@
 (ns joiner.search
   (:require [com.ashafa.clutch.http-client :as http])
   (:use [joiner.core]
-        [com.ashafa.clutch]))
+        [com.ashafa.clutch :only (get-database)]))
 
 (defn- lucene-request [method design-doc-id index query]
   (let [db (get-database)
@@ -10,7 +10,7 @@
         fti-prefix (or (:fti-prefix db) "_fti")]
     (http/couchdb-request method
                           (assoc db
-                                 :path (str fti-prefix "/" fti-key "/" db-name "/" design-doc-id (if (not (nil? index)) (str "/" index)))
+                                 :path (str "/" fti-prefix "/" fti-key "/" db-name "/" design-doc-id (if (not (nil? index)) (str "/" index)))
                                  :query query))))
 
 

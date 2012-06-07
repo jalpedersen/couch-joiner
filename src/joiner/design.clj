@@ -1,8 +1,9 @@
 (ns joiner.design
-  (:use [com.ashafa.clutch]
-        [joiner.core]
-        [joiner.resource])
-  (:require [clojure.tools.logging :as log]))
+  (:use [joiner.core]
+        [joiner.resource]
+        [com.ashafa.clutch :only (get-document put-document update-document)])
+  (:require [com.ashafa.clutch :as c]
+            [clojure.tools.logging :as log]))
 
 (defn- load-files [path key-names]
   (let [loader-fn (fn[sum key-name]

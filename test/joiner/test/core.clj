@@ -1,44 +1,44 @@
 (ns joiner.test.core
-  (:use joiner.core
-        joiner.admin
-        joiner.design
-        joiner.user
-        joiner.resource
-        joiner.utils
-        joiner.search
-        com.ashafa.clutch
-        com.ashafa.clutch.http-client
-        joiner.main :reload-all)
+  (:require [joiner.core :as core]
+            [joiner.admin :as admin]
+            [joiner.design :as design]
+            [joiner.user :as user]
+            [joiner.resource :as resource]
+            [joiner.utils :as utils]
+            [joiner.search :as search]
+            [com.ashafa.clutch :as clutch]
+            [com.ashafa.clutch.http-client :as http]
+            [joiner.main] :reload-all)
   (:use clojure.test))
 
 (def testdb "joiner_testdb")
 
 (defmacro with-test-db
   [body]
-  `(let [db# (get-database (authenticated-database testdb))]
+  `(let [db# (clutch/get-database (core/authenticated-database testdb))]
      (try 
        (~@body)
-       (finally (delete-database db#)))))
+       (finally (clutch/delete-database db#)))))
 
 (deftest test-set-security
          (let [acl {:admins {:roles ["important"]}
                     :readers {:names ["joe"]}}]
            (with-test-db
              (do
-               (with-db (authenticated-database testdb)
-                        (is (:ok (security acl)))
-                        (is (= acl (security))))))))
+               (clutch/with-db (core/authenticated-database testdb)
+                        (is (:ok (admin/security acl)))
+                        (is (= acl (admin/security))))))))
 (deftest test-error-handling
          (with-test-db
-           (let [response (catch-couchdb-exceptions
-                                 (with-db (authenticated-database "_bad-name")
-                                          (couchdb-request :get (authenticated-database testdb))))]
+           (let [response (utils/catch-couchdb-exceptions
+                                 (clutch/with-db (core/authenticated-database "_bad-name")
+                                          (http/couchdb-request :get (core/authenticated-database testdb))))]
              (is (= 400 (:status response)))
              (is (.equals "Bad Request" (:error response))))))
 
 (deftest test-design
          (with-test-db
-           (with-db (authenticated-database testdb)
+           (clutch/with-db (core/authenticated-database testdb)
                     (do
-                      (update-views "testing" "test-view")
-                      (update-views "testing" "test-view" "another-view")))))
+                      (design/update-views "testing" "test-view")
+                      (design/update-views "testing" "test-view" "another-view")))))

@@ -1,8 +1,8 @@
 (ns joiner.admin
   (:require [com.ashafa.clutch.utils :as utils]
             [com.ashafa.clutch.http-client :as http])
-  (:use [com.ashafa.clutch]
-        [joiner.core]))
+  (:use [joiner.core]
+        [com.ashafa.clutch :only (with-db get-document get-database)]))
 
 (defn create-admin [username password]
   (http/couchdb-request :put
