@@ -15,21 +15,19 @@
         props))))
 
 ;;Initialise properties
-(def ^{:dynamic true :private true} *autentication-props* (atom nil))
+(def ^{:private true} autentication-props (atom nil))
 (def ^{:private true} valid-properties [:username :password :fti-key :fti-prefix])
 
 (defn reload-properties []
-  (reset! *autentication-props* nil))
+  (reset! autentication-props nil))
 
 (defn- db-properties []
-  (if (nil? @*autentication-props*)
+  (if (nil? @autentication-props)
     (let [properties (load-auth-properties)
           connection (merge (utils/url (:url properties))
                             (select-keys properties valid-properties))]
-      (do
-        (reset! *autentication-props* connection)
-        @*autentication-props*))
-    @*autentication-props*))
+        (reset! autentication-props connection))
+    @autentication-props))
 
 (defn database-url [name]
   (utils/url (db-properties) name))

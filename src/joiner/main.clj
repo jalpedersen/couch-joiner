@@ -11,6 +11,7 @@
 
 
 (defn- update-doc [id doc file]
+  (assert (not-empty id) "Document ID is needed")
   (let [existing (get-document (:_id (merge {:_id id} doc)))
         updated-doc (if (empty? doc)
                       ;;If document is empty - don't bother updating it
@@ -21,22 +22,26 @@
       (put-attachment updated-doc file))))
 
 (defn -main [& args]
-  (let [arguments (cli args
-                       (required ["-db" "--database" "Database"])
-                       (required ["-op" "--operation" "Operation: get, save, update or delete"])
-                       (optional ["-id" "--document-id" "Document ID"])
-                       (optional ["-d" "--document" "Document" :default "{}"])
-                       (optional ["-f" "--file" "File"]))]
+  (let [[arguments extra-args banner] (cli args
+                                           ["-db" "--database" "Database" :default ""]
+                                           ["-m" "--method" "Method: get, save, update or delete" :default "get"]
+                                           ["-id" "--document-id" "Document ID" :default ""]
+                                           ["-d" "--document" "Document" :default "{}"]
+                                           ["-f" "--file" "File"]
+                                           ["-h" "--help" "Help" :flag true])]
     (with-db (authenticated-database (:database arguments))
+             (if (:help arguments)
+               (println banner))
              (let [doc (:document arguments)
                    json-doc (if doc (read-json doc))
                    id (:document-id arguments)
-                   op (:operation arguments)]
+                   method (:method arguments)]
                (println
-                 (case (keyword op)
+                 (case (keyword method)
                    :get (get-document id)
                    :save (put-document json-doc)
                    :update (update-doc id json-doc (:file arguments))
-                   :delete (delete-document json-doc)
-                   (str "Unknown operation " op)))))))
+                   :delete (and (assert (not-empty json-doc) "Document is needed") 
+                                (delete-document json-doc))
+                   (str "Unknown method " method)))))))
 

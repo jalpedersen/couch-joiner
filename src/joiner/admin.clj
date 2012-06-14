@@ -16,6 +16,10 @@
   (http/couchdb-request :get
                         (database-url "_config/admins/")))
 
+(defn get-configuration []
+  (http/couchdb-request :get
+                        (database-url "_config")))
+
 (defn- get-security []
   "Get security settings for current database"
   (get-document "_security"))

@@ -7,3 +7,5 @@ classes
 .classpath
 .project
 joiner.properties
+tags
+*.swp
