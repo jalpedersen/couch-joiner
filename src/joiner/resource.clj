@@ -10,15 +10,17 @@
     (if (.isFile file)
       (do-load (fn [] (input-stream file)))
       (let [url (resource name)]
-        (if (nil? url)
-          (java.util.Properties.)
+        (if url
           (do-load (fn [] (.openStream url))))))))
 
 
 (defn load-properties [name]
   "Load named property first from file then from resource"
-  (load-file-or-resource name #(doto (java.util.Properties.)
-                     (.load %1))))
+  (let [p (load-file-or-resource name #(doto (java.util.Properties.)
+                     (.load %1)))]
+    (if p
+      p
+      (java.util.Properties.))))
 
 (defn load-resource [name]
   "Load file first from file relative from current
