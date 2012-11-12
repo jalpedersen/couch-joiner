@@ -6,7 +6,7 @@
                            [org.clojure/tools.cli "0.2.1"]
                            [cheshire "4.0.0"]
                            [com.ashafa/clutch "0.4.0-RC1"]]
-            :dev-dependencies [[lein-clojars "0.9.0"]]
+            :plugins [[lein-clojars "0.9.1"]]
             :main joiner.main
             :uberjar-name "couch-joiner.jar"
             :warn-on-reflection true)
