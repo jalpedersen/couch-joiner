@@ -5,9 +5,9 @@
         [com.ashafa.clutch :only (update-document get-database
                                    put-document get-document
                                    put-attachment with-db
-                                   delete-document)]
-        [clojure.data.json]
-        [clojure.tools.cli]))
+                                   delete-document)])
+  (:require [cheshire.core :as json]
+            [clojure.tools.cli :as cli]))
 
 
 (defn- update-doc [id doc file]
@@ -22,7 +22,7 @@
       (put-attachment updated-doc file))))
 
 (defn -main [& args]
-  (let [[arguments extra-args banner] (cli args
+  (let [[arguments extra-args banner] (cli/cli args
                                            ["-db" "--database" "Database" :default ""]
                                            ["-m" "--method" "Method: get, save, update or delete" :default "get"]
                                            ["-id" "--document-id" "Document ID" :default ""]
@@ -33,7 +33,7 @@
              (if (:help arguments)
                (println banner))
              (let [doc (:document arguments)
-                   json-doc (if doc (read-json doc))
+                   json-doc (if doc (json/parse-string doc))
                    id (:document-id arguments)
                    method (:method arguments)]
                (println

@@ -29,6 +29,9 @@
         (reset! autentication-props connection))
     @autentication-props))
 
+(defn couchdb-instance []
+  (db-properties))
+
 (defn database-url [name]
   (utils/url (db-properties) name))
 

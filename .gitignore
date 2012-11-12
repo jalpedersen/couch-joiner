@@ -9,3 +9,6 @@ classes
 joiner.properties
 tags
 *.swp
+.lein-deps-sum
+.lein-failures
+target

@@ -1,21 +1,16 @@
 (ns joiner.utils
   (:require [com.ashafa.clutch.http-client :as http])
   (:use [joiner.core] 
-        [clojure.string :only [split]]
-        [clojure.data.json :only [json-str]]))
+        [clojure.string :only [split]]))
 
 (defmacro catch-couchdb-exceptions [& body]
   `(try
      ~@body
-     (catch java.io.IOException e#
-       (let [msg# (.getMessage e#)
-             tokens# (split msg# #" " 5)]
-         (if (and (= (count tokens#) 5) (= (.startsWith msg# "CouchDB Response Error:")))
-           ;;Clutch error message is something like this: CouchDB Response Error: " response-code " " response-message 
-           {:status (Integer/parseInt (get tokens# 3))
-            :error (get tokens# 4)
-            :message msg#}
-           (throw e#))))))
+     (catch clojure.lang.ExceptionInfo e#
+       (let [data# (:object (ex-data e#))]
+         {:status (:status data#)
+          :body (:body data#)
+          :headers (:headers data#)}))))
 
 
 (defn uuids 

@@ -1,5 +1,6 @@
 (ns joiner.user
   (:require [clojure.string :as s]
+            [cemerick.url :as url]
             [com.ashafa.clutch.http-client :as http])
   (:use [joiner.core]
         [joiner.admin]
@@ -12,7 +13,7 @@
                                    update-document
                                    put-document)]))
 
-(def ^:dynamic *users-db* "_users")
+(def ^:private ^:dynamic *users-db* "_users")
 
 (defn- get-uuid []
   (first
@@ -35,15 +36,28 @@
 
 (defn create-user [username, password, roles]
   "Create a new user with given password and roles."
-  (let [salt (get-uuid)]
     (with-db (authenticated-database *users-db*)
              (put-document
                {:_id (str "org.couchdb.user:" username)
                 :name username
-                :password_sha (sha1 password salt)
-                :salt salt
+                :password password
                 :type "user"
-                :roles roles}))))
+                :roles roles})))
+
+;;Sha-1 encoded of password was only required prior to 1.2.0
+;;(defn create-user [username, password, roles]
+;; "Create a new user with given password and roles."
+;; (let [salt (get-uuid)]
+;;    (with-db (authenticated-database *users-db*)
+;;             (put-document
+;;               {:_id (str "org.couchdb.user:" username)
+;;                :name username
+;;                password_sha (sha1 password salt)
+;;                salt salt
+;;                :password password
+;;                :type "user"
+;;                :roles roles}))))
+
 
 (defn get-user [username]
   "Get user from username"
@@ -51,18 +65,29 @@
            (get-document (str "org.couchdb.user:" username))))
 
 (defn authenticate [username, password]
-  (let [user (get-user username)]
-    (if user
-      (= (:password_sha user) (sha1 password (:salt user))))))
+  (try
+    (:ok (http/couchdb-request :get (assoc (url/url (couchdb-instance) "_session") :username username :password password)))
+    (catch clojure.lang.ExceptionInfo e
+      false)))
+
+
 
 (defn set-password [username, password]
   "Set new password for user"
-  (let [salt (get-uuid)
-        user (get-user username)]
+  (let [user (get-user username)]
     (with-db (authenticated-database *users-db*)
              (update-document (assoc user
-                                     :salt salt
-                                     :password_sha (sha1 password salt))))))
+                                     :password password)))))
+
+
+;;(defn set-password [username, password]
+;;  "Set new password for user"
+;;  (let [salt (get-uuid)
+;;        user (get-user username)]
+;;    (with-db (authenticated-database *users-db*)
+;;             (update-document (assoc user
+;;                                     :salt salt
+;;                                     :password_sha (sha1 password salt))))))
 
 (defn update-user [user]
   "Update user along. Typically used when updating roles

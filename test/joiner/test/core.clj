@@ -8,6 +8,7 @@
             [joiner.search :as search]
             [com.ashafa.clutch :as clutch]
             [com.ashafa.clutch.http-client :as http]
+            [cheshire.core :as json]
             [joiner.main] :reload-all)
   (:use clojure.test))
 
@@ -20,6 +21,17 @@
        (~@body)
        (finally (clutch/delete-database db#)))))
 
+(deftest test-create-user
+         (if (user/get-user "test_user42")
+           (user/delete-user (user/get-user "test_user42")))
+         (is (= "test_user42"  (:name (user/create-user "test_user42" "123" ["user"]))))
+         (is (user/authenticate "test_user42" "123"))
+         (is (false? (user/authenticate "test_user42" "1234")))
+         (is (= "test_user42" (:name (user/set-password "test_user42" "1234"))))
+         (is (user/authenticate "test_user42" "1234"))
+         (user/delete-user (user/get-user "test_user42")))
+
+
 (deftest test-set-security
          (let [acl {:admins {:roles ["important"]}
                     :readers {:names ["joe"]}}]
@@ -28,13 +40,15 @@
                (clutch/with-db (core/authenticated-database testdb)
                         (is (:ok (admin/security acl)))
                         (is (= acl (admin/security))))))))
+
 (deftest test-error-handling
          (with-test-db
            (let [response (utils/catch-couchdb-exceptions
                                  (clutch/with-db (core/authenticated-database "_bad-name")
                                           (http/couchdb-request :get (core/authenticated-database testdb))))]
              (is (= 400 (:status response)))
-             (is (.equals "Bad Request" (:error response))))))
+             (let [json-resp (json/parse-string (:body response) true)]
+               (is (= "illegal_database_name" (:error json-resp)))))))
 
 (deftest test-design
          (with-test-db
