@@ -1,17 +1,10 @@
 (ns joiner.user
   (:require [clojure.string :as s]
             [cemerick.url :as url]
+            [com.ashafa.clutch :as clutch]
             [com.ashafa.clutch.http-client :as http])
   (:use [joiner.core]
-        [joiner.admin]
-        [com.ashafa.clutch :only (get-document
-                                   with-db
-                                   get-database
-                                   create-database
-                                   delete-database
-                                   delete-document
-                                   update-document
-                                   put-document)]))
+        [joiner.admin]))
 
 (def ^:private ^:dynamic *users-db* "_users")
 
@@ -27,7 +20,6 @@
       (str "0" val)
       val)))
 
-
 (defn- sha1 [string salt]
   (let [bytes (.getBytes (str string salt) "UTF-8")
         digester (java.security.MessageDigest/getInstance "SHA1")] 
@@ -36,15 +28,15 @@
 
 (defn create-user [username, password, roles]
   "Create a new user with given password and roles."
-    (with-db (authenticated-database *users-db*)
-             (put-document
-               {:_id (str "org.couchdb.user:" username)
-                :name username
-                :password password
-                :type "user"
-                :roles roles})))
+  (clutch/with-db (authenticated-database *users-db*)
+                  (clutch/put-document
+                    {:_id (str "org.couchdb.user:" username)
+                     :name username
+                     :password password
+                     :type "user"
+                     :roles roles})))
 
-;;Sha-1 encoded of password was only required prior to 1.2.0
+;;Sha-1 encoding of password was only required prior to 1.2.0
 ;;(defn create-user [username, password, roles]
 ;; "Create a new user with given password and roles."
 ;; (let [salt (get-uuid)]
@@ -61,8 +53,8 @@
 
 (defn get-user [username]
   "Get user from username"
-  (with-db (authenticated-database *users-db*)
-           (get-document (str "org.couchdb.user:" username))))
+  (clutch/with-db (authenticated-database *users-db*)
+                  (clutch/get-document (str "org.couchdb.user:" username))))
 
 (defn authenticate [username, password]
   (try
@@ -70,15 +62,12 @@
     (catch clojure.lang.ExceptionInfo e
       false)))
 
-
-
 (defn set-password [username, password]
   "Set new password for user"
   (let [user (get-user username)]
-    (with-db (authenticated-database *users-db*)
-             (update-document (assoc user
-                                     :password password)))))
-
+    (clutch/with-db (authenticated-database *users-db*)
+                    (clutch/update-document (assoc user
+                                                   :password password)))))
 
 ;;(defn set-password [username, password]
 ;;  "Set new password for user"
@@ -92,17 +81,17 @@
 (defn update-user [user]
   "Update user along. Typically used when updating roles
   and other meta-data"
-  (with-db (authenticated-database *users-db*)
-           (update-document user)))
+  (clutch/with-db (authenticated-database *users-db*)
+                  (clutch/update-document user)))
 
 (defn delete-user [user]
-  (with-db (authenticated-database *users-db*)
-           (delete-document user)))
+  (clutch/with-db (authenticated-database *users-db*)
+                  (clutch/delete-document user)))
 
 (defn delete-private-database [user]
   (if-let [db (:userdb user)]
     (do
-      (delete-database (authenticated-database db))
+      (clutch/delete-database (authenticated-database db))
       (update-user (dissoc user :userdb)))))
 
 (defn set-roles [username, roles]
@@ -125,16 +114,17 @@
                        (str clean-name "_" postfix)))
         name {:names [(:name user)]}
         acl {:admins name :readers name}]
-    (try (create-database (database-url db-name))
-      (try (do (with-db (authenticated-database db-name) (security  acl))
+    (try (clutch/create-database (database-url db-name))
+      (try (do (clutch/with-db (authenticated-database db-name) (security  acl))
              (update-user (assoc user :userdb db-name)))
         ;;Should we remove the database
         ;;if we cannot update the user data?
         (catch Exception _ 
-          (delete-database (database-url db-name))))
+          (clutch/delete-database (database-url db-name))))
       (catch java.io.IOException _
         (create-private-database user
                                  (if (nil? postfix)
                                    0
                                    (+ postfix 1)))))))
+
 

@@ -1,8 +1,7 @@
 (ns joiner.design
   (:use [joiner.core]
-        [joiner.resource]
-        [com.ashafa.clutch :only (get-document put-document update-document)])
-  (:require [com.ashafa.clutch :as c]
+        [joiner.resource])
+  (:require [com.ashafa.clutch :as clutch]
             [clojure.tools.logging :as log]))
 
 (defn- load-files [path key-names]
@@ -28,11 +27,11 @@
 (defn- reload-design-doc-element [design-doc element sub-elements key-names]
   "Update the design document element with the content from the 
   files found under given sub-elements."
-  (let [ddoc (get-document (str "_design/" design-doc))
+  (let [ddoc (clutch/get-document (str "_design/" design-doc))
         new-element (load-element design-doc element key-names sub-elements)]
     (if (nil? ddoc)
-      (put-document {:_id (str "_design/" design-doc) (keyword element) new-element})
-      (update-document (assoc ddoc (keyword element) new-element)))))
+      (clutch/put-document {:_id (str "_design/" design-doc) (keyword element) new-element})
+      (clutch/update-document (assoc ddoc (keyword element) new-element)))))
 
 (defn update-fulltext [design-doc & indices]
   (reload-design-doc-element design-doc "fulltext" indices ["index"]))

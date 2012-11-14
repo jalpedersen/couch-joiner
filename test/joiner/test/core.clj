@@ -6,6 +6,7 @@
             [joiner.resource :as resource]
             [joiner.utils :as utils]
             [joiner.search :as search]
+            [joiner.ring :as ring]
             [com.ashafa.clutch :as clutch]
             [com.ashafa.clutch.http-client :as http]
             [cheshire.core :as json]

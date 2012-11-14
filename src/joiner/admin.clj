@@ -1,8 +1,8 @@
 (ns joiner.admin
   (:require [com.ashafa.clutch.utils :as utils]
+            [com.ashafa.clutch :as clutch]
             [com.ashafa.clutch.http-client :as http])
-  (:use [joiner.core]
-        [com.ashafa.clutch :only (with-db get-document get-database)]))
+  (:use [joiner.core]))
 
 (defn create-admin [username password]
   (http/couchdb-request :put
@@ -22,12 +22,12 @@
 
 (defn- get-security []
   "Get security settings for current database"
-  (get-document "_security"))
+  (clutch/get-document "_security"))
 
 (defn- set-security [security-settings]
   "Set security settings for current database"
   (http/couchdb-request :put
-                        (utils/url (get-database) "_security")
+                        (utils/url (clutch/get-database) "_security")
                         :data security-settings))
 
 ;;Example settings:
@@ -49,7 +49,7 @@
    (set-security settings)))
 
 (defn compact [& [db]]
-  (let [database (if (nil? db) (get-database) db)]
+  (let [database (if (nil? db) (clutch/get-database) db)]
     (http/couchdb-request :post
                           (utils/url db "_compact"))))
 

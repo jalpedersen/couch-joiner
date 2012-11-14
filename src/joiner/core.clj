@@ -1,7 +1,7 @@
 (ns joiner.core
-  (:require [com.ashafa.clutch.utils :as utils])
-  (:use [joiner.resource]
-        [com.ashafa.clutch :only (get-database)]))
+  (:require [com.ashafa.clutch.utils :as utils]
+            [com.ashafa.clutch :as clutch])
+  (:use [joiner.resource]))
 
 (defn- load-auth-properties []
   (let [filename (System/getProperty "joiner-conf" "joiner.properties")
@@ -26,7 +26,7 @@
     (let [properties (load-auth-properties)
           connection (merge (utils/url (:url properties))
                             (select-keys properties valid-properties))]
-        (reset! autentication-props connection))
+      (reset! autentication-props connection))
     @autentication-props))
 
 (defn couchdb-instance []
@@ -37,6 +37,6 @@
 
 (defn authenticated-database [name]
   "Authenticated access to database"
-  (get-database (database-url name)))
+  (clutch/get-database (database-url name)))
 
 

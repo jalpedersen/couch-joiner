@@ -1,10 +1,9 @@
 (ns joiner.search
   (:require [com.ashafa.clutch.http-client :as http])
-  (:use [joiner.core]
-        [com.ashafa.clutch :only (get-database)]))
+  (:use [joiner.core]))
 
 (defn- lucene-request [method design-doc-id index query]
-  (let [db (get-database)
+  (let [db (couchdb-instance)
         db-name (:path db)
         fti-key (or (:fti-key db) "local")
         fti-prefix (or (:fti-prefix db) "_fti")]

@@ -1,17 +1,14 @@
 (ns joiner.utils
-  (:require [com.ashafa.clutch.http-client :as http])
-  (:use [joiner.core] 
-        [clojure.string :only [split]]))
+  (:require [com.ashafa.clutch.http-client :as http]
+            [com.ashafa.clutch.utils :as utils])
+  (:use [joiner.core]))
 
 (defmacro catch-couchdb-exceptions [& body]
   `(try
      ~@body
      (catch clojure.lang.ExceptionInfo e#
        (let [data# (:object (ex-data e#))]
-         {:status (:status data#)
-          :body (:body data#)
-          :headers (:headers data#)}))))
-
+         (select-keys data# [:status :body :headers])))))
 
 (defn uuids 
   ([]
