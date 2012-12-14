@@ -26,11 +26,14 @@
          (if (user/get-user "test_user42")
            (user/delete-user (user/get-user "test_user42")))
          (is (= "test_user42"  (:name (user/create-user "test_user42" "123" ["user"]))))
+         (is (= "test_user42@somewhere"  (:name (user/create-user "test_user42@somewhere" "123" ["user"]))))
          (is (user/authenticate "test_user42" "123"))
+         (is (user/authenticate "test_user42@somewhere" "123"))
          (is (false? (user/authenticate "test_user42" "1234")))
          (is (= "test_user42" (:name (user/set-password "test_user42" "1234"))))
          (is (user/authenticate "test_user42" "1234"))
-         (user/delete-user (user/get-user "test_user42")))
+         (user/delete-user (user/get-user "test_user42"))
+         (user/delete-user (user/get-user "test_user42@somewhere")))
 
 
 (deftest test-set-security

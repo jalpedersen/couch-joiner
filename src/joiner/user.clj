@@ -1,6 +1,7 @@
 (ns joiner.user
   (:require [clojure.string :as s]
             [cemerick.url :as url]
+            [clojure.data.codec.base64 :as b64]
             [com.ashafa.clutch :as clutch]
             [com.ashafa.clutch.http-client :as http])
   (:use [joiner.core]
@@ -56,9 +57,20 @@
   (clutch/with-db (authenticated-database *users-db*)
                   (clutch/get-document (str "org.couchdb.user:" username))))
 
+(defn- urlencode [string]
+  (java.net.URLEncoder/encode string "UTF-8"))
+
 (defn authenticate [username, password]
+  "Seems like something is broken somewhere between here and clj-http for usernames
+  containing special characters (such as @) - hence these hoops"
   (try
-    (:ok (http/couchdb-request :get (assoc (url/url (couchdb-instance) "_session") :username username :password password)))
+    (let [url (url/url (assoc (couchdb-instance) :username nil :password nil) "_session")
+          ^bytes auth-bytes (b64/encode (.getBytes (str username ":" password)))
+          authorization (String. auth-bytes)
+          headers {"Authorization" (str "Basic " authorization)}]
+      (let [resp (http/couchdb-request :get url :headers headers)]
+        (and (:ok resp)
+             (not (nil? (:name (:userCtx resp)))))))
     (catch clojure.lang.ExceptionInfo e
       false)))
 

@@ -12,7 +12,7 @@
 (defn- get-current-user [request]
     "Authenticate against the configured couchdb instance using the given ring request's headers"
     (let [headers (select-keys (:headers request) ["authorization" "cookie"])]
-      (:userCtx (http/couchdb-request :get (utils/url (couchdb-instance) "_session") :headers headers))))
+      (:userCtx (http/couchdb-request :get (utils/url (assoc (couchdb-instance) :username nil :password nil) "_session") :headers headers))))
 
 (defn- get-user [request]
   (if (:username request)
