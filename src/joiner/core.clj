@@ -37,6 +37,6 @@
 
 (defn authenticated-database [name]
   "Authenticated access to database"
-  (clutch/get-database (database-url name)))
+  (clutch/get-database-with-db (database-url name)))
 
 

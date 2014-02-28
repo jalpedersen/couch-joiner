@@ -17,10 +17,10 @@
 
 (defmacro with-test-db
   [body]
-  `(let [db# (clutch/get-database (core/authenticated-database testdb))]
+  `(let [db# (clutch/get-database-with-db (core/authenticated-database testdb))]
      (try 
        (~@body)
-       (finally (clutch/delete-database db#)))))
+       (finally (clutch/delete-database-with-db db#)))))
 
 (deftest test-create-user
          (if (user/get-user "test_user42")
