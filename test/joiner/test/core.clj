@@ -48,8 +48,8 @@
 (deftest test-error-handling
          (with-test-db
            (let [response (utils/catch-couchdb-exceptions
-                                 (clutch/with-db (core/authenticated-database "_bad-name")
-                                          (http/couchdb-request :get (core/authenticated-database testdb))))]
+                            (clutch/with-db (core/authenticated-database "_bad-name")
+                                            (http/couchdb-request :get (core/authenticated-database testdb))))]
              (is (= 400 (:status response)))
              (let [json-resp (json/parse-string (:body response) true)]
                (is (= "illegal_database_name" (:error json-resp)))))))
@@ -57,6 +57,9 @@
 (deftest test-design
          (with-test-db
            (clutch/with-db (core/authenticated-database testdb)
-                    (do
-                      (design/update-views "testing" "test-view")
-                      (design/update-views "testing" "test-view" "another-view")))))
+                           (do
+                             (admin/security {:admins {:roles ["_admin"]}
+                                              :readers {:roles ["_admin"]}})
+                             (design/update-views "testing" "test-view")
+                             (is (= 1 (count (:views (clutch/get-document "/_design/testing")))))
+                             (design/update-views "testing" "test-view" "another-view")))))
