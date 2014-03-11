@@ -62,4 +62,5 @@
                                               :readers {:roles ["_admin"]}})
                              (design/update-views "testing" "test-view")
                              (is (= 1 (count (:views (clutch/get-document "/_design/testing")))))
-                             (design/update-views "testing" "test-view" "another-view")))))
+                             (design/update-views "testing" "test-view" "another-view")
+                             (is (= 2 (count (:views (clutch/get-document "/_design/testing")))))))))
