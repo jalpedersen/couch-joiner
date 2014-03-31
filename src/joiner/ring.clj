@@ -1,6 +1,7 @@
 (ns joiner.ring
   (:require [com.ashafa.clutch.http-client :as http]
-            [com.ashafa.clutch.utils :as utils])
+            [com.ashafa.clutch.utils :as utils]
+            [com.ashafa.clutch :as clutch])
   (:use [joiner.core]))
 
 (defn- in-any-role? [allow-roles roles]
@@ -20,6 +21,10 @@
      :roles (:roles request)}
     (get-current-user request)))
 
+(defn wrap-with-db [handler db]
+  (fn [request]
+    (clutch/with-db db
+                    (handler request))))
 
 (defn wrap-couchdb-user [handler & [ & {:keys [allow-roles]}]]
   "Wrap request with current couchdb user.
