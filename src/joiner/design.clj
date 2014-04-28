@@ -27,10 +27,10 @@
 (defn- reload-design-doc-element [design-doc element sub-elements key-names]
   "Update the design document element with the content from the 
   files found under given sub-elements."
-  (let [ddoc (clutch/get-document (str "/_design/" design-doc))
+  (let [ddoc (clutch/get-document (str "_design/" design-doc))
         new-element (load-element design-doc element key-names sub-elements)]
     (if (nil? ddoc)
-      (clutch/put-document {:_id (str "/_design/" design-doc) (keyword element) new-element})
+      (clutch/put-document {:_id (str "_design/" design-doc) (keyword element) new-element})
       (clutch/update-document (assoc ddoc (keyword element) new-element)))))
 
 (defn update-fulltext [design-doc & indices]
