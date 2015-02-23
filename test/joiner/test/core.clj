@@ -44,6 +44,11 @@
                (clutch/with-db (core/authenticated-database testdb)
                         (is (:ok (admin/security acl)))
                         (is (= acl (admin/security))))))))
+(deftest test-util
+  (with-test-db
+    (do
+      (is (= 1 (count (utils/uuids))))
+      (is (= 42 (count (utils/uuids 42)))))))
 
 (deftest test-error-handling
          (with-test-db
