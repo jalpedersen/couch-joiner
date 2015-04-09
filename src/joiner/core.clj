@@ -39,4 +39,8 @@
   "Authenticated access to database"
   (clutch/get-database-with-db (database-url name)))
 
+(defmacro with-authenticated-db [db-name & body]
+  `(clutch/with-db (authenticated-database ~db-name)
+     (do
+       ~@body)))
 

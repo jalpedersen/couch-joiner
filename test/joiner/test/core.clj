@@ -53,7 +53,7 @@
 (deftest test-error-handling
          (with-test-db
            (let [response (utils/catch-couchdb-exceptions
-                            (clutch/with-db (core/authenticated-database "_bad-name")
+                            (core/with-authenticated-db "_bad-name"
                                             (http/couchdb-request :get (core/authenticated-database testdb))))]
              (is (= 400 (:status response)))
              (let [json-resp (json/parse-string (:body response) true)]
@@ -61,11 +61,10 @@
 
 (deftest test-design
          (with-test-db
-           (clutch/with-db (core/authenticated-database testdb)
-                           (do
-                             (admin/security {:admins {:roles ["_admin"]}
-                                              :readers {:roles ["_admin"]}})
-                             (design/update-views "testing" "test-view")
-                             (is (= 1 (count (:views (clutch/get-document "_design/testing")))))
-                             (design/update-views "testing" "test-view" "another-view")
-                             (is (= 2 (count (:views (clutch/get-document "_design/testing")))))))))
+           (core/with-authenticated-db testdb
+             (admin/security {:admins {:roles ["_admin"]}
+                              :readers {:roles ["_admin"]}})
+             (design/update-views "testing" "test-view")
+             (is (= 1 (count (:views (clutch/get-document "_design/testing")))))
+             (design/update-views "testing" "test-view" "another-view")
+             (is (= 2 (count (:views (clutch/get-document "_design/testing"))))))))
